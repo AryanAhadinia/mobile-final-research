@@ -16,44 +16,44 @@ Parse Flutter SDK
 
 ## شروع به کار
 
-##Object ها
+## Object ها
 
-###Object های متفرقه
+### Object های متفرقه
 
-###افزودن مقدار جدید به Object ها
+### افزودن مقدار جدید به Object ها
 
-###ذخیره کردن Object ها با استفاده از pin
+### ذخیره کردن Object ها با استفاده از pin
 
-##ذخیره سازی
+## ذخیره سازی
 
-###تغییر شمارنده ها در Object ها
+### تغییر شمارنده ها در Object ها
 
-###عملگر های آرایه در Object ها
+### عملگر های آرایه در Object ها
 
-##Query ها
+## Query ها
 
-###Query های پیچیده
+### Query های پیچیده
 
-###Query های ارتباطی(relational)
+### Query های ارتباطی(relational)
 
-###شمارش Object ها
+### شمارش Object ها
 
-###Query های live
+### Query های live
 
-##ParseLiveList
+## ParseLiveList
 
-##Users
+## Users
 
-###ثبت نام و ورود 3rd party
+### ثبت نام و ورود 3rd party
 
-##امنیت برای Object ها - ParseACL
+## امنیت برای Object ها - ParseACL
 
-##Config
+## Config
 
-##Cloud Functions
+## Cloud Functions
 
-##Relation
+## Relation
 
-##File
+## File
 
 </div>
