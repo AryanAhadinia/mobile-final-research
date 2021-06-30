@@ -264,10 +264,84 @@ ParseACL parseACL = parseObject.getACL();
 ```
 </div>
 
-
 ## Config
 
+ParseConfig مجموعه ای از داده های پیکربندی(Configuration) است که میتوان آن را از Parse dashboard تنظیم کرد.
+برای گرفتن map ای از تمام config های موجود میتوانید به صورت زیر عمل کنید:
+
+<div dir="ltr">
+
+```Dart
+var response = await ParseConfig().getConfigs();
+```
+</div>
+
+و برای اضافه کردن config میتوانید به صورت زیر عمل کنید:
+
+<div dir="ltr">
+
+```Dart
+ParseConfig().addConfig('TestConfig', 'testing')
+```
+</div>
+
 ## Cloud Functions
+
+به کمک Cloud Function ها میتوانید بخشی از کد را روی سرور خود اجرا کنید و نتیجه آن را به کاربر برگردانید.
+از مزیت های استفاده از این روش این است که میتوانید این function ها را بروزرسانی کنید و این تغییر برای کاربران بدون نیاز به بروزرسانی برنامه اعمال شود.
+همچنین گاهی اوقات ممکن است که عملیاتی نیاز به حجم شدید داده یا پردازش نیاز داشته باشد که در این مواقع نیز میتوان با انجام پردازش روی سرور و فرستان نتیجه به کاربر اجرا را سریع تر کرد.
+
+مثال: فرض کنید برنامه ای دارید که کاربران در آن میتوانند به فیلم های سینمایی امتیاز دهند. هر امتیاز به شکل زیر است:
+
+<div dir="ltr">
+
+```Json
+{
+  "movie": "The Matrix",
+  "stars": 5,
+  "comment": "Too bad they never made any sequels."
+}
+```
+</div>
+
+برای این که به کاربر نشان دهید امتیاز میانگین یک فیلم چقدر است میتوانید تمام امتیاز هایی که فیلم گرفته را برایش ارسال کنید اما این روش داده و پهنای باند زیادی نیاز دارد.
+پس به جای این کار نتیجه را روی سرور محاسبه میکنید و برای کاربر تنها یک عدد ارسال میکنید.
+
+تابع سمت سرور به صورت زیر خواهد بود:
+
+<div dir="ltr">
+
+```JavaScript 
+Parse.Cloud.define("averageStars", async (request) => {
+    const query = new Parse.Query("Review");
+    query.equalTo("movie", request.params.movie);
+    const results = await query.find();
+    let sum = 0;
+    for (let i = 0; i < results.length; ++i) {
+        sum += results[i].get("stars");
+    }
+    return sum / results.length;
+});
+```
+</div>
+
+Cloud Function ها یک JSON را به عنوان ورودی میگیرند.
+برای این که چنین تابعی را از سمت کلاینت فراخوانی کنیم میتوانیم به صورت زیر عمل کنیم:
+
+<div dir="ltr">
+
+```Dart 
+final ParseCloudFunction function = ParseCloudFunction('averageStars');
+final Map<String, String> params = <String, String>{'movie': 'The Matrix'};
+final ParseResponse result =
+    await function.executeObjectFunction<ParseObject>(params);
+if (result.success) {
+  if (result.result is ParseObject) {
+    print(result.result);
+  }
+}
+```
+</div>
 
 ## Relation
 
