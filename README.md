@@ -24,11 +24,66 @@ Parse Flutter SDK
 
 ### ذخیره کردن Object ها با استفاده از pin
 
-## ذخیره سازی
+## Storage
+
+ذخیره‌سازی دو نوع امن و نا امن دارد؛ در حال حاضر دو گزینه برای این کار پیش رو داریم:
+
+- SharedPreferences : این مورد تنها wrapper ای برای NSUserDefaults در iOS و SharedPreferences در اندروید است.
+
+- Sembast (Simple Embedded Application Store database): این مورد ذخیره سازی امن را ارائه میدهد.
+
+شیوه ذخیره سازی در پارامتر coreStore در
+parse().initialize
+تعریف میشود.
 
 ### تغییر شمارنده ها در Object ها
 
+ابتدا Object را فراخوانی کرده، سپس به شکل زیر عمل میکنیم:
+
+<div dir="ltr">
+
+```Dart
+var response = await dietPlan.increment("count", 1);
+```
+</div>
+
+همچنین میتوان از تابع save استفاده کرد:
+
+<div dir="ltr">
+
+```Dart
+dietPlan.setIncrement('count', 1);
+dietPlan.setDecrement('count', 1);
+var response = dietPlan.save()
+```
+</div>
+
 ### عملگر های آرایه در Object ها
+
+Object را دریافت کرده و سپس داریم:
+
+<div dir="ltr">
+
+```Dart
+var response = await dietPlan.add("listKeywords", ["a", "a","d"]);
+
+var response = await dietPlan.addUnique("listKeywords", ["a", "a","d"]);
+
+var response = await dietPlan.remove("listKeywords", ["a"]);
+```
+</div>
+
+در صورت استفاده از تابع save نیز فرآیند به این صورت خواهد بود:
+
+<div dir="ltr">
+
+```Dart
+dietPlan.setAdd('listKeywords', ['a','a','d']);
+dietPlan.setAddUnique('listKeywords', ['a','a','d']);
+dietPlan.setRemove('listKeywords', ['a']);
+var response = dietPlan.save()
+```
+</div>
 
 ## Query ها
 
