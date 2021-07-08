@@ -13,7 +13,7 @@ Parse Flutter SDK
 <div dir="rtl">
 
 ## پیش از شروع خوب است که ... 
-علی الرغم سادگی های Flutter خوب است که پیش از شروع دانش native در مورد برنامه سازی موبایل و وب (در صورتی که build برای نسخه وب نیز میخواهید دریافت کنید) داشته باشید.
+علی الرغم سادگی های Flutter خوب است که پیش از شروع دانش native در مورد برنامه سازی موبایل داشته باشید.
 میتوانید برای مطالعه در مورد SDK پارس سرور برای Android از
 [این مقاله](https://github.com/AryanAhadinia/mobile-midterm-research)
 که توسط همین گروه نگاشته شده است استفاده کنید.
@@ -49,7 +49,48 @@ SDK فلاتر در بستر فلاتر، API هایی را در اختیار م
 2. [مستند Parse Flutter SDK در وبسایت Parse Server](https://github.com/parse-community/Parse-SDK-Flutter/tree/master/packages/flutter)
 3. [مستندات عمومی موحود در وبسایت Parse Server](https://parseplatform.org/)
 
+## هوشیار باشید! 
+جدا از SDK پارس سرور برای Flutter، یک SDK برای زبان Dart نیز وجود دارد.
+لطفا این دو را از یک دیگر تمییز دهید و آنها را اشتباه نگیرید.
+
 ## شروع به کار
+
+### مرحله اول 
+ابتدا باید dependency مربوط به SDK را به فایل pubspec.yaml اضافه کنیم.
+با استفاده از فرمان زیر در خط فرمان (Terminal / Command line) dependency اضافه خواهد شد.
+
+<div dir="ltr">
+
+```
+$ flutter pub add parse_server_sdk_flutter
+```
+</div>
+
+توجه کنید که از این SDK میتوان build برای موارد زیر دریافت کرد.
+1. Android
+2. iOS
+3. Linux
+4. macOS
+5. Windows
+
+#### توجه کنید 
+امکان دریافت build برای نسخه وب وجود ندارد!
+
+#### در حاشیه 
+پس از اضافه شدن dependency میتواند به صورت زیر آن را در کد import کنید.
+
+<div dir="ltr">
+
+```Dart
+import 'package:parse_server_sdk_flutter/generated/i18n.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
+```
+</div>
+
+#### در حاشیه 
+[لینک صفحه pub.dev مربوط به dependency](https://pub.dev/packages/parse_server_sdk_flutter/install)
+
+### مرحله دوم 
 
 ## Object ها
 
