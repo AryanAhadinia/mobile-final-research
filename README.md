@@ -515,7 +515,69 @@ if (result.success) {
 </div>
 
 ## Relation
+مطابق منطق Parse، میتوانیم بین object ها relation برقرار کنیم. اضافه کردن و حذف کردن relation به شکل زیر است.
+
+<div dir="ltr">
+
+```Dart
+dietPlan.addRelation('fruits', [ParseObject("Fruits")..set("objectId", "XGadzYxnac")]);
+```
+
+</div>
+
+<div dir="ltr">
+
+```Dart
+dietPlan.removeRelation('fruits', [ParseObject("Fruits")..set("objectId", "XGadzYxnac")]);
+```
+
+</div>
+
+همچنین میتوان با توجه به relation ها کوئری دریافت کرد. دریافت کوئری به وسیله relation به صورت زیر است.
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> query =
+    QueryBuilder<ParseObject>(ParseObject('Fruits'))
+      ..whereRelatedTo('fruits', 'DietPlan', DietPlan.objectId);
+```
+
+</div>
 
 ## File
+سه کلاس برای فایل ها در SDK وجود دارد:
+1. `ParseFileBase`: این یک کلاس abstract است که همه انواع فایل را میتواند مدیریت کند.
+2. `ParseFile`: این کلاس از `ParseFileBase` گسترش یافته است (extended). در تمام پلتفرم ها به جز web، از این فرمت برای ذخیره‌سازی فایل ها استفاده میشود. در این کلاس از File در dart:io استفاده میشود.
+3. `ParseWebFile`: این کلاس معادل `ParseFile` است که در وب استفاده میشود. با این تفاوت که از Uint8List استفاده میشود.
+
+همچنین میتوان با extend کردن کلاس های دلخواه را ایجاد کرد.
+
+آپلود و دانلود فایل در Parse ساده است. مثال زیر را در نظر بگیرید. با توجه به اینکه فایل از چه نوعی است، میتوان رفتار را تمییز داد. همچنین میتوان در زمانی که هنوز progress کامل نشده، progressBar را نمایش داد.
+
+<div dir="ltr">
+
+```Dart
+//A short example for showing an image from a ParseFileBase
+Widget buildImage(ParseFileBase image){
+  return FutureBuilder<ParseFileBase>(
+    future: image.download(),
+    builder: (BuildContext context,
+    AsyncSnapshot<ParseFileBase> snapshot) {
+      if (snapshot.hasData) {
+        if (kIsWeb) {
+          return Image.memory((snapshot.data as ParseWebFile).file);
+        } else {
+          return Image.file((snapshot.data as ParseFile).file);
+        }
+      } else {
+        return CircularProgressIndicator();
+      }
+    },
+  );
+}
+```
+
+</div>
 
 </div>
