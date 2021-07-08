@@ -91,6 +91,46 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 [لینک صفحه pub.dev مربوط به dependency](https://pub.dev/packages/parse_server_sdk_flutter/install)
 
 ### مرحله دوم 
+در این مرحله مشابه آنکه در اندروید در `onCreate` در کلاس Application پارس را initialize میکردیم.
+در اینجا نیز در اولین call، کار initialization را انجام میدهیم.
+
+<div dir="ltr">
+
+```Dart
+await Parse().initialize(
+        keyApplicationId,
+        keyParseServerUrl);
+```
+</div>
+
+در صورت نیاز، میتوانیم سایر موارد را در صورت نیاز در همین تابع مقدار دهی کنیم. به عنوان مثال اگر نیاز به استفاده از storage داشته باشیم (کاربرد آن توضیح داده خواهد شد) میتوانیم به صورت زیر آن را نیز initial کنیم.
+
+<div dir="ltr">
+
+```Dart
+await Parse().initialize(
+  	keyParseApplicationId, 
+  	keyParseServerUrl,
+  	coreStore: await CoreStoreSembastImp.getInstance());
+```
+</div>
+
+سایر موارد نیز به صورت مشابه میتوان initial کرد.
+
+<div dir="ltr">
+
+```Dart
+await Parse().initialize(
+        keyApplicationId,
+        keyParseServerUrl,
+        clientKey: keyParseClientKey, // Required for some setups
+        debug: true, // When enabled, prints logs to console
+        liveQueryUrl: keyLiveQueryUrl, // Required if using LiveQuery 
+        autoSendSessionId: true, // Required for authentication and ACL
+        securityContext: securityContext, // Again, required for some setups
+        coreStore: await CoreStoreSharedPrefsImp.getInstance()); // Local data storage method. Will use SharedPreferences instead of Sembast as an internal DB
+```
+</div>
 
 ## Object ها
 
