@@ -426,7 +426,7 @@ if (apiResponse.success && apiResponse.result != null) {
 
  `ParseLiveQuery` شامل دو قسمت است، قسمت سرور `LiveQuery` و قسمت کلاینت `LiveQuery`. برای استفاده از `LiveQuery`ها نیاز است که هر دو را راه بیندازید. راهنمای کانفیگ سرور پارس‌سرور در اینجا https://docs.parseplatform.org/parse-server/guide/#live-queries موجود است و تمرکز این مقاله روی آن نیست.
 
-با وارد کردن پارامتر `liveQueryUrl` در `Parse().initialize`، `Parse Live Query` را راه‌اندازی کنید:
+با وارد کردن پارامتر `liveQueryUrl` در `Parse Live Query`، `Parse().initialize` را راه‌اندازی کنید:
 
 <div dir="ltr">
 
@@ -464,7 +464,7 @@ QueryBuilder<ParseObject> query =
 
 </div>
 
-<b>یک `subscription` بسازید</b> و شما می‌توانید که `event`های مربوط به `LiveQuery` را از طریق این `subscription` دریافت کنید. بار اولی که شما تابع `subscribe` را صدا بزنید، ما سعی می‌کنیم که ارتباط `WebSocket` را به سرور `LiveQuery` برای شما باز کنیم.
+<b>یک `subscription` بسازید</b>، و شما می‌توانید که `event`های مربوط به `LiveQuery` را از طریق این `subscription` دریافت کنید. بار اولی که شما تابع `subscribe` را صدا بزنید، ما سعی می‌کنیم که ارتباط `WebSocket` را به سرور `LiveQuery` برای شما باز کنیم.
 
 <div dir="ltr">
 
@@ -474,9 +474,9 @@ Subscription subscription = await liveQuery.client.subscribe(query);
 
 </div>
 
-<b>مدیریت کردن `event`ها</b> - ما `event`های متنوعی تعریف کرده ایم که شما را به یک آبجکت `subscription` می‌رساند.
+<b>مدیریت کردن `event`ها</b>، ما `event`های متنوعی تعریف کرده ایم که شما را به یک آبجکت `subscription` می‌رساند.
 
-<b>`event` ساختن</b> زمانی که یک `ParseObject` جدید ساخته شده است و `QueryBuilder` قولی که شما به آن `subscribe` کرده‌اید را عملی می‌کند، شما این `event` را دریافت می‌کنید. آن آبجکت همان `ParseObject`ی است که ساخته شده بود.
+<b>`event` ساختن</b>، زمانی که یک `ParseObject` جدید ساخته شده است و `QueryBuilder` قولی که شما به آن `subscribe` کرده‌اید را عملی می‌کند، شما این `event` را دریافت می‌کنید. آن آبجکت همان `ParseObject`ی است که ساخته شده بود.
 
 <div dir="ltr">
 
@@ -493,6 +493,90 @@ subscription.on(LiveQueryEvent.create, (value) {
 ```
 
 </div>
+
+<b>`event` آپدیت</b>، زمانی که یک `ParseObject` موجود که `QueryBuilder` به شما قول داده بود، آپدیت می‌شود، شما این `event` را دریافت می‌کنید. آبجکت همان `ParseObject`ی است که آپدیت شده بود و محتوای آن، آخرین مقادیر موجود در همان `ParseObject` است.
+
+<div dir="ltr">
+
+```Dart
+subscription.on(LiveQueryEvent.update, (value) {
+    print('*** UPDATE ***: ${DateTime.now().toString()}\n $value ');
+    print((value as ParseObject).objectId);
+    print((value as ParseObject).updatedAt);
+    print((value as ParseObject).createdAt);
+    print((value as ParseObject).get('objectId'));
+    print((value as ParseObject).get('updatedAt'));
+    print((value as ParseObject).get('createdAt'));
+});
+```
+
+</div>
+
+<b>`event` ورود</b>، زمانی که مقدار قدیمی `ParseObject` موجود، طبق معیارهای `QueryBuilder` نیست ولی مقدار جدید با معیارها تطابق دارد،این `event` را دریافت می‌کنید. این آبجکت همان `ParseObject`ی است که به `QueryBuilder` وارد می‌شود. محتوای آن آخرین مقدار موجود در `ParseObject` است.
+
+<div dir="ltr">
+
+```Dart
+subscription.on(LiveQueryEvent.enter, (value) {
+    print('*** ENTER ***: ${DateTime.now().toString()}\n $value ');
+    print((value as ParseObject).objectId);
+    print((value as ParseObject).updatedAt);
+    print((value as ParseObject).createdAt);
+    print((value as ParseObject).get('objectId'));
+    print((value as ParseObject).get('updatedAt'));
+    print((value as ParseObject).get('createdAt'));
+});
+```
+
+</div>
+
+<b>`event` خروج</b>، زمانی که مقدار جدید `ParseObject` موجود، طبق معیارهای `QueryBuilder` نیست ولی مقدار قبلی با معیارها تطابق دارد، این `event` را دریافت می‌کنید. این آبجکت همان `ParseObject`ی است که `QueryBuilder` را ترک می‌کند. محتوای آن آخرین مقدار موجود در `ParseObject` است.
+
+<div dir="ltr">
+
+```Dart
+subscription.on(LiveQueryEvent.leave, (value) {
+    print('*** LEAVE ***: ${DateTime.now().toString()}\n $value ');
+    print((value as ParseObject).objectId);
+    print((value as ParseObject).updatedAt);
+    print((value as ParseObject).createdAt);
+    print((value as ParseObject).get('objectId'));
+    print((value as ParseObject).get('updatedAt'));
+    print((value as ParseObject).get('createdAt'));
+});
+```
+
+</div>
+
+<b>`event` حذف</b>، زمانیست که یک `ParseObject` موجود طبق معیارهای `QueryBuikder` است، پاک شده است. در این هنگام، شما این `event` را دریافت می‌کنید. این آبجکت همان `ParseObject`ی است که حذف شده است.
+
+<div dir="ltr">
+
+```Dart
+subscription.on(LiveQueryEvent.delete, (value) {
+    print('*** DELETE ***: ${DateTime.now().toString()}\n $value ');
+    print((value as ParseObject).objectId);
+    print((value as ParseObject).updatedAt);
+    print((value as ParseObject).createdAt);
+    print((value as ParseObject).get('objectId'));
+    print((value as ParseObject).get('updatedAt'));
+    print((value as ParseObject).get('createdAt'));
+});
+```
+
+</div>
+
+<b>`unsubscribe`</b>، اگر شما می‌خواهید که از یک `QueryBuilder` دیگر `event` دریافت نکنید، می‌توانید `unsubscribe` کنید. بعد از این حرکت، شما دیگر هیچ `event`ی از این `QueryBuilder` دریافت نمی‌کنید و ارتباط `WebSocket` به سرور `LiveQuery` بسته می‌شود.
+
+<div dir="ltr">
+
+```Dart
+liveQuery.client.unSubscribe(subscription);
+```
+
+</div>
+
+<b>`قطع ارتباط`</b>، در حالتی که ارتباط کلاینت با سرور ناگهانی قطع شود، `LiveQuery` به صورت خودکار تلاش می‌کند که ارتباط دوباره برقرار شود. `LiveQuery` در بازه‌هایی با طول‌هایی که به مرور افزایش می‌یابند صبر می‌کند تا ارتباط دوباره را امتحان کند. به صورت پیش‌فرض، این بازه‌ها این اعداد هستند: `[10000 ,5000 ,2000 ,1000 ,500 ,0]` برای موبایل و `[5000 ,2000 ,1000 ,500 ,0]` برای وب. شما می‌توانید که این‌ها را با ساختن یک لیست با استفاده از پارامتر `liveListRetryIntervals` در `()Parse.initialize` تغییر دهید. ("۱-" به این معنی است که دیگر برقراری ارتباط صورت نگیرد.)
 
 ## ParseLiveList
 
