@@ -203,7 +203,99 @@ var response = dietPlan.save()
 
 ## Query ها
 
+زمانی که شما پروژه را راه‌اندازی کرده‌اید و می‌خواهید کار را شروع کنید، می‌تواند با صدا زدن این تابع، دیتا را از سرور دریافت کنید:
+    
+```Dart
+var apiResponse = await ParseObject('ParseTableName').getAll();
+
+if (apiResponse.success){
+  for (var testObject in apiResponse.result) {
+    print(ApplicationConstants.APP_NAME + ": " + testObject.toString());
+  }
+}
+```
+
+یا می‌توانید که یک آبجکت را کمک آی‌دی از سرور بگیرید:
+    
+```Dart
+var dietPlan = await DietPlan().getObject('R5EonpUDWy');
+
+if (dietPlan.success) {
+  print(ApplicationConstants.keyAppName + ": " + (dietPlan.result as DietPlan).toString());
+} else {
+  print(ApplicationConstants.keyAppName + ": " + dietPlan.exception.message);
+}
+```
+
+برای کوئری زدن برای آبجکت‌های کاربر، می‌توانید از تابع `()ParseUser.forQuery` به این شکل استفاده کنید:
+    
+```Dart
+var queryBuilder  = QueryBuilder<ParseUser>(ParseUser.forQuery())
+  ..whereEqualTo('activated', true);
+
+var response = await queryBuilder.query();
+
+if (response.success) {
+  print(response.results);
+} else {
+  print(response.exception.message);
+}
+```
+
+#### روش‌های فرعی Query
+
+تابع استاندارد Query که تابع `()query` یک عدد `ParseResponse` برمی‌گرداند که شامل نتیجه یا ارور می‌باشد. به عنوان یک راه دیگر، می‌تواند از `()Future<List<T>> find` برای دریافت گزینه‌ها استفاده کنید. این تابع یک `Future` برمی‌گرداند که یک ارور یا یک `List` که آبجکت‌های کوئری‌شده را در بر می‌گیرد. یک تفاوتی که وجود دارد این است که در هنگامی که آبجکتی با Query تطابق ندارد، `()Future<List<T>> find` یک لیست خالی به جای ارور "بدون نتیجه" برمی‌گرداند.
+
 ### Query های پیچیده
+
+شما می‌توانید Queryهای پیچیده بسازید تا دیتابیستان را حسابی به چالش بکشید.
+
+```Dart
+var queryBuilder = QueryBuilder<DietPlan>(DietPlan())
+  ..startsWith(DietPlan.keyName, "Keto")
+  ..greaterThan(DietPlan.keyFat, 64)
+  ..lessThan(DietPlan.keyFat, 66)
+  ..equals(DietPlan.keyCarbs, 5);
+
+var response = await queryBuilder.query();
+
+if (response.success) {
+  print(ApplicationConstants.keyAppName + ": " + ((response.results as List<dynamic>).first as DietPlan).toString());
+} else {
+  print(ApplicationConstants.keyAppName + ": " + response.exception.message);
+}
+```
+
+اگر شما می‌خواهید که آبجکت‌هایی را بیابید که با یکی از چندین Query تطابق پیدا کند، شما می‌توانید از تابع `Querybuilder.or` استفاده کنید تا یک Query بسازید که یک OR از تمامی Queryهاییست که به آن پاس داده شده است. برای مثال اگر شما می‌خواهید بازیکنانی که تعداد زیادی برد یا تعداد کمی برد دارند را بیابید، می‌توانید این کار را کنید:
+
+```Dart
+ParseObject playerObject = ParseObject("Player");
+
+QueryBuilder<ParseObject> lotsOfWins =
+    QueryBuilder<ParseObject>(playerObject))
+      ..whereGreaterThan('wins', 50);
+
+QueryBuilder<ParseObject> fewWins =
+    QueryBuilder<ParseObject>(playerObject)
+      ..whereLessThan('wins', 5);
+
+QueryBuilder<ParseObject> mainQuery = QueryBuilder.or(
+      playerObject,
+      [lotsOfWins, fewWins],
+    );
+
+var apiResponse = await mainQuery.query();
+```
+
+این قابلیت‌ها در دسترس هستند:
+
+- برابری و نابرابری
+- شامل بودن
+- کوچکتر/بزرگتر (مساوی) بودن
+- آغاز شدن و پایان یافتن با یک پترن خاص
+- نزدیک بودن از نظر مسافتی
+- Regex
+- و ...
 
 ### Query های ارتباطی(relational)
 
