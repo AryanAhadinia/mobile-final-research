@@ -204,7 +204,9 @@ var response = dietPlan.save()
 ## Query ها
 
 زمانی که شما پروژه را راه‌اندازی کرده‌اید و می‌خواهید کار را شروع کنید، می‌تواند با صدا زدن این تابع، دیتا را از سرور دریافت کنید:
-    
+
+<div dir="ltr">
+
 ```Dart
 var apiResponse = await ParseObject('ParseTableName').getAll();
 
@@ -214,9 +216,12 @@ if (apiResponse.success){
   }
 }
 ```
+</div>
 
 یا می‌توانید که یک آبجکت را کمک آی‌دی از سرور بگیرید:
-    
+
+<div dir="ltr">
+
 ```Dart
 var dietPlan = await DietPlan().getObject('R5EonpUDWy');
 
@@ -226,9 +231,12 @@ if (dietPlan.success) {
   print(ApplicationConstants.keyAppName + ": " + dietPlan.exception.message);
 }
 ```
+</div>
 
 برای کوئری زدن برای آبجکت‌های کاربر، می‌توانید از تابع `()ParseUser.forQuery` به این شکل استفاده کنید:
     
+<div dir="ltr">
+
 ```Dart
 var queryBuilder  = QueryBuilder<ParseUser>(ParseUser.forQuery())
   ..whereEqualTo('activated', true);
@@ -241,6 +249,7 @@ if (response.success) {
   print(response.exception.message);
 }
 ```
+</div>
 
 #### روش‌های فرعی Query
 
@@ -249,6 +258,8 @@ if (response.success) {
 ### Query های پیچیده
 
 شما می‌توانید Queryهای پیچیده بسازید تا دیتابیستان را حسابی به چالش بکشید.
+
+<div dir="ltr">
 
 ```Dart
 var queryBuilder = QueryBuilder<DietPlan>(DietPlan())
@@ -265,8 +276,11 @@ if (response.success) {
   print(ApplicationConstants.keyAppName + ": " + response.exception.message);
 }
 ```
+</div>
 
 اگر شما می‌خواهید که آبجکت‌هایی را بیابید که با یکی از چندین Query تطابق پیدا کند، شما می‌توانید از تابع `Querybuilder.or` استفاده کنید تا یک Query بسازید که یک OR از تمامی Queryهاییست که به آن پاس داده شده است. برای مثال اگر شما می‌خواهید بازیکنانی که تعداد زیادی برد یا تعداد کمی برد دارند را بیابید، می‌توانید این کار را کنید:
+
+<div dir="ltr">
 
 ```Dart
 ParseObject playerObject = ParseObject("Player");
@@ -286,6 +300,7 @@ QueryBuilder<ParseObject> mainQuery = QueryBuilder.or(
 
 var apiResponse = await mainQuery.query();
 ```
+</div>
 
 این قابلیت‌ها در دسترس هستند:
 
@@ -299,9 +314,115 @@ var apiResponse = await mainQuery.query();
 
 ### Query های ارتباطی(relational)
 
+برای بازیابی کردن آبجکت‌هایی که یک فیلدی دارند که شامل یک آبجکتی است که با یک Query خاصی تطابق دارد، شما می‌توانید از `whereMatchesQuery` استفاده کنید. برای مثال تصور کنید که شما یک کلاس Post و یک کلاس Comment دارید که هر Comment یک پوینتر به Post مربوط به آن دارد. شما می‌توانید Commentها را در Postهای عکس‌دار با این کار بیابید:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> queryPost =
+    QueryBuilder<ParseObject>(ParseObject('Post'))
+      ..whereValueExists('image', true);
+
+QueryBuilder<ParseObject> queryComment =
+    QueryBuilder<ParseObject>(ParseObject('Comment'))
+      ..whereMatchesQuery('post', queryPost);
+
+var apiResponse = await queryComment.query();
+```
+
+</div>
+
+اگر می‌خواهید متضاد حالت قبل، یعنی جایی که آن آبجکت‌های درون فیلد با Query تطابق ندارند را بازیابی کنید، می‌توانید با کمک `whereDoesNotMatchQuery` مانند زیر عمل کنید. مثال مانند بخش قبل است فقط دنبال Commentها در Postهای بدون عکس هستیم:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> queryPost =
+    QueryBuilder<ParseObject>(ParseObject('Post'))
+      ..whereValueExists('image', true);
+
+QueryBuilder<ParseObject> queryComment =
+    QueryBuilder<ParseObject>(ParseObject('Comment'))
+      ..whereDoesNotMatchQuery('post', queryPost);
+
+var apiResponse = await queryComment.query();
+```
+
+</div>
+
+شما می‌توانید از تابع `whereMatchesKeyInQuery` استفاده کنید تا آبجکت‌هایی را بگیرید که یک کلید تطابق دارد با مقدار یک کلید در یک مجموعه از آبجکت‌ها که با یک Query دیگر تطابق دارند. برای مثال، یک کلاس داریم که تیم‌های ورزشی را دارد و شهر سکونت یک کاربر را هم ذخیره می‌کنید. شما می‌توانید یک Query منتشر کنید که تیم‌های ورزشی شهر کاربر که رکورد برد دارند را به عنوان یک لیست بیابید. این Query به این شکل خواهد بود:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> teamQuery =
+    QueryBuilder<ParseObject>(ParseObject('Team'))
+      ..whereGreaterThan('winPct', 0.5);
+
+QueryBuilder<ParseUser> userQuery =
+    QueryBuilder<ParseUser>ParseUser.forQuery())
+      ..whereMatchesKeyInQuery('hometown', 'city', teamQuery);
+
+var apiResponse = await userQuery.query();
+```
+
+</div>
+
+برای گرفتن متضاد حالت قبل، می‌توانید از تابع `whereDoesNotMatchKeyInQuery` استفاده کنید و مشابه مثال قبل، این بار تیم‌های شهر کاربر که رکورد باخت دارند را بیابید:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> teamQuery =
+    QueryBuilder<ParseObject>(ParseObject('Team'))
+      ..whereGreaterThan('winPct', 0.5);
+
+QueryBuilder<ParseUser> losingUserQuery =
+    QueryBuilder<ParseUser>ParseUser.forQuery())
+      ..whereDoesNotMatchKeyInQuery('hometown', 'city', teamQuery);
+
+var apiResponse = await losingUserQuery.query();
+```
+</div>
+
+برای فیلتر کردن سطرها بر اساس آی‌دی‌های آبجکت‌ها از پوینترها در یک جدول ثانویه، می‌توانید از نوتیشن نقطه استفاده کنید:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> rolesOfTypeX =
+    QueryBuilder<ParseObject>(ParseObject('Role'))
+      ..whereEqualTo('type', 'x');
+
+QueryBuilder<ParseObject> groupsWithRoleX =
+    QueryBuilder<ParseObject>(ParseObject('Group')))
+      ..whereMatchesKeyInQuery('objectId', 'belongsTo.objectId', rolesOfTypeX);
+
+var apiResponse = await groupsWithRoleX.query();
+```
+</div>
+
 ### شمارش Object ها
 
+اگر برای شما فقط تعداد بازی‌های یک بازیکن مهم است:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> queryPlayers =
+    QueryBuilder<ParseObject>(ParseObject('GameScore'))
+      ..whereEqualTo('playerName', 'Jonathan Walsh');
+var apiResponse = await queryPlayers.count();
+if (apiResponse.success && apiResponse.result != null) {
+  int countGames = apiResponse.count;
+}
+```
+
+</div>
+
 ### Query های live
+
+
 
 ## ParseLiveList
 
