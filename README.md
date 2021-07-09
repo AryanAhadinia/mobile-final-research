@@ -422,7 +422,77 @@ if (apiResponse.success && apiResponse.result != null) {
 
 ### Query های live
 
+این ابزار به شما این امکان را می‌دهد که از یک `QueryBuilder` استفاده کنید. هنگام استفاده، سرور به کلاینت‌ها اطلاع می‌دهد که یک `ParseObject` با `QueryBuilder` ساخته یا آپدیت شده است.
 
+ `ParseLiveQuery` شامل دو قسمت است، قسمت سرور `LiveQuery` و قسمت کلاینت `LiveQuery`. برای استفاده از `LiveQuery`ها نیاز است که هر دو را راه بیندازید. راهنمای کانفیگ سرور پارس‌سرور در اینجا https://docs.parseplatform.org/parse-server/guide/#live-queries موجود است و تمرکز این مقاله روی آن نیست.
+
+با وارد کردن پارامتر `liveQueryUrl` در `Parse().initialize`، `Parse Live Query` را راه‌اندازی کنید:
+
+<div dir="ltr">
+
+```Dart
+Parse().initialize(
+      keyApplicationId,
+      keyParseServerUrl,
+      clientKey: keyParseClientKey,
+      debug: true,
+      liveQueryUrl: keyLiveQueryUrl,
+      autoSendSessionId: true);
+```
+
+</div>
+
+`LiveQuery` را declare کنید:
+
+<div dir="ltr">
+
+```Dart
+final LiveQuery liveQuery = LiveQuery();
+```
+
+</div>
+
+`QueryBuilder`ی که قرار است توسط `LiveQuery` تحت نظارت قرار بگیرد را راه بیندازید:
+
+<div dir="ltr">
+
+```Dart
+QueryBuilder<ParseObject> query =
+  QueryBuilder<ParseObject>(ParseObject('TestAPI'))
+  ..whereEqualTo('intNumber', 1);
+```
+
+</div>
+
+<b>یک `subscription` بسازید</b> و شما می‌توانید که `event`های مربوط به `LiveQuery` را از طریق این `subscription` دریافت کنید. بار اولی که شما تابع `subscribe` را صدا بزنید، ما سعی می‌کنیم که ارتباط `WebSocket` را به سرور `LiveQuery` برای شما باز کنیم.
+
+<div dir="ltr">
+
+```Dart
+Subscription subscription = await liveQuery.client.subscribe(query);
+```
+
+</div>
+
+<b>مدیریت کردن `event`ها</b> - ما `event`های متنوعی تعریف کرده ایم که شما را به یک آبجکت `subscription` می‌رساند.
+
+<b>`event` ساختن</b> زمانی که یک `ParseObject` جدید ساخته شده است و `QueryBuilder` قولی که شما به آن `subscribe` کرده‌اید را عملی می‌کند، شما این `event` را دریافت می‌کنید. آن آبجکت همان `ParseObject`ی است که ساخته شده بود.
+
+<div dir="ltr">
+
+```Dart
+subscription.on(LiveQueryEvent.create, (value) {
+    print('*** CREATE ***: ${DateTime.now().toString()}\n $value ');
+    print((value as ParseObject).objectId);
+    print((value as ParseObject).updatedAt);
+    print((value as ParseObject).createdAt);
+    print((value as ParseObject).get('objectId'));
+    print((value as ParseObject).get('updatedAt'));
+    print((value as ParseObject).get('createdAt'));
+});
+```
+
+</div>
 
 ## ParseLiveList
 
