@@ -133,12 +133,15 @@ await Parse().initialize(
 </div>
 
 ## Object ها
-
+مشابه حوزه اندروید و  به صورت کلی منطق حاکم بر پلتفرم پارس، ابجکت ها مجموعه از key-value های دارای id هستند. 
 ### Object های متفرقه
+
 
 ### افزودن مقدار جدید به Object ها
 
+
 ### ذخیره کردن Object ها با استفاده از pin
+
 
 ## Storage
 
@@ -495,6 +498,107 @@ subscription.on(LiveQueryEvent.create, (value) {
 </div>
 
 ## ParseLiveList
+در مواردی میخواهیم که لیست حاصل از یک کوئری را به کاربر نمایش بدهیم.
+ممکن است هدف ما این باشد که دائما نتیجه بروز شده را به کاربر نمایش دهیم.
+یک روش برای انجام این کار استفاده از LiveQuery است.
+اما SDK ابزاری را در اختیار ما قرار میدهد که بوسیه آن نمایش لیست، آپدیت شدن و تغییرات آن توسط SDK مدیریت میشود.
+با استفاده از ابزار ParseLiveList میتوانیم لیست حاصل از نتیجه یک کوئری را به سادگی نمایش دهیم و نتیجه آن را up to date نگه داریم.
+
+تمامی ارتباط با ParseLiveList از طریق ParseLiveListWidget صورت میگیرد. به وسیله آن میتوانیم تیجه یک کوئری را به صورت منظم نشان دهیم و آپدیت کنیم.
+
+<div dir="ltr">
+
+```Dart
+ParseLiveListWidget<ParseObject>(
+  query: query,
+  reverse: false,
+  childBuilder:
+      (BuildContext context, ParseLiveListElementSnapshot<ParseObject> snapshot) {
+    if (snapshot.failed) {
+      return const Text('something went wrong!');
+    } else if (snapshot.hasData) {
+      return ListTile(
+        title: Text(
+          snapshot.loadedData.get("text"),
+        ),
+      );
+    } else {
+      return const ListTile(
+        leading: CircularProgressIndicator(),
+      );
+    }
+  },
+);
+```
+</div>
+
+در مثال فوق، لیستی از متون نمایش داده میشود.
+در زمان بارگیری، یک CircularProgressIndicator نمایش داده میشود.
+و در صورت بروز خطا، پیغام خطا نمایش داده میشود.
+
+میتوانیم با اضافه کردن listLoadingElement، در زمان لودینگ نیز انمیشن مناسب مانند ProgressBar نمایش بدهیم.
+
+<div dir="ltr">
+
+```Dart
+ParseLiveListWidget<ParseObject>(
+  query: query,
+  childBuilder: childBuilder,
+  listLoadingElement: Center(
+    child: CircularProgressIndicator(),
+  ),
+);
+```
+</div>
+
+همچنین میتوانیم با مقداردهی به Duration، زمان اجرای انیمیشن ها را مدیریت کنیم.
+
+<div dir="ltr">
+
+```Dart
+ParseLiveListWidget<ParseObject>(
+  query: query,
+  childBuilder: childBuilder,
+  duration: Duration(seconds: 1),
+);
+```
+</div>
+
+توجه کنید که در حالت کلی، پارامتر ها به صورت lazy loading دریافت میشوند.
+ممکن است که بخواهیم پارامتر هایی حتما بارگیری شوند.
+در این صورت آن پارامترها را در PreloadedColumns مشخص میکنیم.
+نحوه دسترسی به این پارامتر ها در مثال زیر مشخص است.
+
+<div dir="ltr">
+
+```Dart
+ParseLiveListWidget<ParseObject>(
+  query: query,
+  lazyLoading: true,
+  preloadedColumns: ["test1", "sender.username"],
+  childBuilder:
+      (BuildContext context, ParseLiveListElementSnapshot<ParseObject> snapshot) {
+    if (snapshot.failed) {
+      return const Text('something went wrong!');
+    } else if (snapshot.hasData) {
+      return ListTile(
+        title: Text(
+          snapshot.loadedData.get<String>("text"),
+        ),
+      );
+    } else {
+      return ListTile(
+        title: Text(
+          "loading comment from: ${snapshot.preLoadedData?.get<ParseObject>("sender")?.get<String>("username")}",
+        ),
+      );
+    }
+  },
+);
+```
+</div>
+
+همچنین میتوانیم با قرار دادن lazyLoading = false، تمامی ابجکت را بارگیری کنیم.
 
 ## Users
 
