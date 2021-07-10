@@ -133,15 +133,144 @@ await Parse().initialize(
 </div>
 
 ## Object ها
-مشابه حوزه اندروید و  به صورت کلی منطق حاکم بر پلتفرم پارس، ابجکت ها مجموعه از key-value های دارای id هستند. 
-### Object های متفرقه
+مشابه حوزه اندروید و  به صورت کلی منطق حاکم بر پلتفرم پارس، ابجکت ها مجموعه از key-value های دارای id هستند.
+به سادگی میتوانیم با مقداردهی به key ها، ابجکت بسازیم و آن را در سرور ذخیره کنیم.
 
+<div dir="ltr">
 
-### افزودن مقدار جدید به Object ها
+```Dart
+var dietPlan = ParseObject('DietPlan')
+	..set('Name', 'Ketogenic')
+	..set('Fat', 65);
+await dietPlan.save();
+```
+</div>
+
+توجه کنید که ابجکت ها به وسیله id از یکدیگر تمایز پیدا میکنند.
+بنابرین میتوانیم با تنظیم id یک ابجکت، بر روی یک ابجکت خاص کار کنیم و مقادیر آن را آپدیت کنیم.
+
+<div dir="ltr">
+
+```Dart
+var dietPlan = ParseObject('DietPlan')
+	..objectId = 'R5EonpUDWy'
+	..set('Fat', 70);
+await dietPlan.save();
+```
+</div>
+
+همچنین میتوانیم وضعیت ذخیره یا بروزرسانی شدن ابجکت را دریافت کنیم و متناسب با آن عمل کنیم.
+
+<div dir="ltr">
+
+```Dart
+var response = await dietPlan.save();
+if (response.success) {
+   dietPlan = response.results.first;
+}
+```
+</div>
+
+انواع زیر از تایپ ها در SDK پشتیبانی میشوند.
+
+<div dir="ltr">
+
+- String
+- Double
+- Int
+- Boolean
+- DateTime
+- File
+- Geopoint
+- ParseObject/ParseUser (Pointer)
+- Map
+- List (all types supported)
+
+</div>
+
+در ابجکت ها میتوانیم از عملگرهای زیر استفاده کنیم.
+
+- دریافت
+- دریافت گروهی
+- ایجاد
+- بروزرسانی
+- دیافت به وسیله کوئری های مرکب
+- ذخیره در cache
+- و موارد دیگری از این دست ...
+
+### Object های ویژه سازی شده
+مشابه حوزه اندروید میتوانیم کلاس ها را از Parse ارث بری کنیم و روی کلاس های ارث بری شده کار انجام دهیم.
+برای این کار باید کلاس را از کلاس ParseObject ارث بری کنیم و رویه ParseCloneable را برای آن پیاده‌سازی کنیم.
+و باید متد های مربوطه از قبیل سازنده، clone و موارد مشابه را پیاده‌سازی کنیم.
+در نهایت توجه کنید که در زمان initial کردن parse، باید subclass را register کنیم تا پارس آن را بشناسد و بتواند با آن کار کند.
+
+<div dir="ltr">
+
+```Dart
+class DietPlan extends ParseObject implements ParseCloneable {
+
+  DietPlan() : super(_keyTableName);
+  DietPlan.clone(): this();
+
+  /// Looks strangely hacky but due to Flutter not using reflection, we have to
+  /// mimic a clone
+  @override clone(Map map) => DietPlan.clone()..fromJson(map);
+
+  static const String _keyTableName = 'Diet_Plans';
+  static const String keyName = 'Name';
+  
+  String get name => get<String>(keyName);
+  set name(String name) => set<String>(keyName, name);
+}
+```
+</div>
+
+همان گونه که در مثال بالا مشاهده میکنید، set کردن و get کردن به صورت فوق انجام میشود.
+
+<div dir="ltr">
+
+```Dart
+Parse().initialize(
+   ...,
+   registeredSubClassMap: <String, ParseObjectConstructor>{
+     'Diet_Plans': () => DietPlan(),
+   },
+   parseUserConstructor: (username, password, emailAddress, {client, debug, sessionToken}) => CustomParseUser(username, password, emailAddress),
+);
+```
+</div>
+
+البته پس از initial شدن نیز امکان رجیستر کردن subclass وجود دارد.
+مشاله رجیستری که در بالا انجام دادیم را میتوانیم بعد از initial شدن به شکل زیر انجام دهیم.
+
+<div dir="ltr">
+
+```Dart
+ParseCoreData().registerSubClass('Diet_Plans', () => DietPlan());
+ParseCoreData().registerUserSubClass((username, password, emailAddress, {client, debug, sessionToken}) => CustomParseUser(username, password, emailAddress));
+```
+</div>
 
 
 ### ذخیره کردن Object ها با استفاده از pin
+به سادگی می توان برای caching از الگوی زیر استفاده کرد.
 
+<div dir="ltr">
+
+```Dart
+dietPlan.pin();
+```
+</div>
+
+میتوان بوسیه objectId به شکل زیر دریافت کرد.
+(کوئری های پیچیده‌تر معرفی خواهند شدو)
+
+<div dir="ltr">
+
+```Dart
+var dietPlan = DietPlan().fromPin('OBJECT ID OF OBJECT');
+```
+</div>
 
 ## Storage
 
